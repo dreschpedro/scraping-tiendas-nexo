@@ -16,7 +16,10 @@ export const BASE_URL = 'https://tiendas.axoft.com';
 // Configuración del navegador
 // Para desarrollo: false (navegador visible)
 // Para producción: true (headless, sin navegador visible)
-export const HEADLESS = process.env.HEADLESS === 'true' || false;
+// En Docker/producción, siempre usa headless (no hay interfaz gráfica disponible)
+export const HEADLESS = process.env.NODE_ENV === 'production' 
+  ? true  // En producción (Docker), siempre headless
+  : (process.env.HEADLESS === 'true' || process.env.HEADLESS === true);
 
 // Configuración SMTP para envío de correos
 export const SMTP_HOST = process.env.SMTP_HOST;

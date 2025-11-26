@@ -10,9 +10,10 @@ services:
     environment:
       - NODE_ENV=production
       # Variables de entorno - se configuran en Portainer o se cargan desde stack.env
+      # HEADLESS siempre true en Docker (sin interfaz gráfica disponible)
+      - HEADLESS=true
       - USER=${USER}
       - PASS=${PASS}
-      - HEADLESS=${HEADLESS:-true}
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER}

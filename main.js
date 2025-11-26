@@ -76,29 +76,41 @@ import EmailPhase from './fase3_email.js';
       console.log('⚠ No se pudo determinar el estado del servicio');
     }
 
-    // Fase 3: Envío de correo
+    // Fase 3: Envío de correo (solo si el servicio está inactivo)
     console.log('\n--- FASE 3: ENVÍO DE CORREO ---');
-    const emailPhase = new EmailPhase();
     
-    // Preparar datos para el correo
-    const datosCorreo = {
-      estado: estadoFinal || 'desconocido',
-      estadoFinal: estadoFinal || 'desconocido',
-      fechaSincronizacion: fechaFinal || 'No disponible',
-      fechaFinal: fechaFinal || 'No disponible',
-      encontrado: resultado.encontrado || resultadoElementos.encontrado
-    };
+    // Solo enviar correo si el servicio está inactivo
+    const estadoParaCorreo = estadoFinal?.toLowerCase();
+    
+    if (estadoParaCorreo === 'inactivo') {
+      console.log('⚠ Servicio INACTIVO detectado - Enviando alerta por correo...');
+      
+      const emailPhase = new EmailPhase();
+      
+      // Preparar datos para el correo
+      const datosCorreo = {
+        estado: estadoFinal || 'inactivo',
+        estadoFinal: estadoFinal || 'inactivo',
+        fechaSincronizacion: fechaFinal || 'No disponible',
+        fechaFinal: fechaFinal || 'No disponible',
+        encontrado: resultado.encontrado || resultadoElementos.encontrado
+      };
 
-    const correoEnviado = await emailPhase.enviarCorreo(datosCorreo);
-    
-    if (correoEnviado) {
-      console.log('✓ Correo enviado exitosamente');
+      const correoEnviado = await emailPhase.enviarCorreo(datosCorreo);
+      
+      if (correoEnviado) {
+        console.log('✓ Correo de alerta enviado exitosamente');
+      } else {
+        console.log('⚠ No se pudo enviar el correo de alerta (verificar configuración SMTP)');
+      }
+
+      // Cerrar conexión SMTP
+      await emailPhase.cerrar();
+    } else if (estadoParaCorreo === 'activo') {
+      console.log('✓ Servicio ACTIVO - No se envía correo (solo se envía cuando está inactivo)');
     } else {
-      console.log('⚠ No se pudo enviar el correo (verificar configuración SMTP)');
+      console.log('⚠ Estado desconocido - No se envía correo');
     }
-
-    // Cerrar conexión SMTP
-    await emailPhase.cerrar();
 
     console.log('\n✓ Proceso completado exitosamente');
   } catch (error) {

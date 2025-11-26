@@ -202,7 +202,10 @@ Por favor, no responda a este correo.
       const estado = resultado.estado || resultado.estadoFinal || 'desconocido';
       const fecha = resultado.fechaSincronizacion || resultado.fechaFinal || 'No disponible';
       
-      const asunto = `[Tango Tiendas] Estado del Servicio: ${estado.toUpperCase()}`;
+      // Asunto del correo - más claro cuando es inactivo
+      const asunto = estado.toLowerCase() === 'inactivo' 
+        ? `🚨 [ALERTA] Tango Tiendas - Servicio INACTIVO`
+        : `[Tango Tiendas] Estado del Servicio: ${estado.toUpperCase()}`;
 
       const mailOptions = {
         from: SMTP_FROM,
