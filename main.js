@@ -76,21 +76,25 @@ import EmailPhase from './fase3_email.js';
       console.log('⚠ No se pudo determinar el estado del servicio');
     }
 
-    // Fase 3: Envío de correo (solo si el servicio está inactivo)
+    // Fase 3: Envío de correo (cuando el servicio está activo o inactivo)
     console.log('\n--- FASE 3: ENVÍO DE CORREO ---');
     
-    // Solo enviar correo si el servicio está inactivo
     const estadoParaCorreo = estadoFinal?.toLowerCase();
     
-    if (estadoParaCorreo === 'inactivo') {
-      console.log('⚠ Servicio INACTIVO detectado - Enviando alerta por correo...');
+    // Enviar correo si el servicio está activo o inactivo
+    if (estadoParaCorreo === 'inactivo' || estadoParaCorreo === 'activo') {
+      const tipoMensaje = estadoParaCorreo === 'inactivo' 
+        ? '⚠ Servicio INACTIVO detectado - Enviando alerta por correo...'
+        : '✓ Servicio ACTIVO detectado - Enviando notificación por correo...';
+      
+      console.log(tipoMensaje);
       
       const emailPhase = new EmailPhase();
       
       // Preparar datos para el correo
       const datosCorreo = {
-        estado: estadoFinal || 'inactivo',
-        estadoFinal: estadoFinal || 'inactivo',
+        estado: estadoFinal || estadoParaCorreo,
+        estadoFinal: estadoFinal || estadoParaCorreo,
         fechaSincronizacion: fechaFinal || 'No disponible',
         fechaFinal: fechaFinal || 'No disponible',
         encontrado: resultado.encontrado || resultadoElementos.encontrado
@@ -99,15 +103,16 @@ import EmailPhase from './fase3_email.js';
       const correoEnviado = await emailPhase.enviarCorreo(datosCorreo);
       
       if (correoEnviado) {
-        console.log('✓ Correo de alerta enviado exitosamente');
+        const mensajeExito = estadoParaCorreo === 'inactivo'
+          ? '✓ Correo de alerta enviado exitosamente'
+          : '✓ Correo de notificación enviado exitosamente';
+        console.log(mensajeExito);
       } else {
-        console.log('⚠ No se pudo enviar el correo de alerta (verificar configuración SMTP)');
+        console.log('⚠ No se pudo enviar el correo (verificar configuración SMTP)');
       }
 
       // Cerrar conexión SMTP
       await emailPhase.cerrar();
-    } else if (estadoParaCorreo === 'activo') {
-      console.log('✓ Servicio ACTIVO - No se envía correo (solo se envía cuando está inactivo)');
     } else {
       console.log('⚠ Estado desconocido - No se envía correo');
     }
