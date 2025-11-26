@@ -18,11 +18,25 @@ class LoginPhase {
     try {
       const page = this.browserManager.getPage();
 
-      // Navegar a la URL base
+      // Navegar a la URL base (con timeout de 1 minuto)
       console.log('Navegando a la página de login...');
-      const navigated = await this.browserManager.navigate(BASE_URL);
-      if (!navigated) {
-        return false;
+      try {
+        const navigated = await this.browserManager.navigate(BASE_URL);
+        if (!navigated) {
+          // Si navigate retorna false y no lanzó error, puede ser otro tipo de problema
+          throw new Error('No se pudo navegar a la página inicial');
+        }
+      } catch (error) {
+        // Si es timeout o error de conexión, lanzar el error para que main.js lo capture
+        if (error.message.includes('timeout') || 
+            error.message.includes('Timeout') ||
+            error.message.includes('Navigation timeout') ||
+            error.message.includes('net::ERR') ||
+            error.name === 'TimeoutError') {
+          throw error; // Propagar el error para que main.js lo capture
+        }
+        // Otros errores también se propagan
+        throw error;
       }
 
       // Esperar a que la página cargue completamente

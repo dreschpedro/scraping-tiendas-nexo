@@ -73,7 +73,7 @@ class BrowserManager {
 
     const defaultOptions = {
       waitUntil: 'networkidle2',
-      timeout: 30000,
+      timeout: 60000, // 1 minuto máximo para cargar la página
       ...options,
     };
 
@@ -83,6 +83,12 @@ class BrowserManager {
       return true;
     } catch (error) {
       console.error(`✗ Error al navegar a ${url}:`, error.message);
+      // Si es timeout, lanzar el error para que se capture en main.js
+      if (error.message.includes('timeout') || 
+          error.message.includes('Navigation timeout') ||
+          error.name === 'TimeoutError') {
+        throw new Error(`Timeout de navegación: No se pudo cargar ${url} en ${defaultOptions.timeout}ms`);
+      }
       return false;
     }
   }

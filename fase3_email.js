@@ -202,11 +202,9 @@ Por favor, no responda a este correo.
       const estado = resultado.estado || resultado.estadoFinal || 'desconocido';
       const fecha = resultado.fechaSincronizacion || resultado.fechaFinal || 'No disponible';
       
-      // Asunto del correo - diferente según el estado
+      // Asunto del correo - más claro cuando es inactivo
       const asunto = estado.toLowerCase() === 'inactivo' 
         ? `🚨 [ALERTA] Tango Tiendas - Servicio INACTIVO`
-        : estado.toLowerCase() === 'activo'
-        ? `✓ [Tango Tiendas] Servicio ACTIVO`
         : `[Tango Tiendas] Estado del Servicio: ${estado.toUpperCase()}`;
 
       const mailOptions = {
@@ -227,6 +225,171 @@ Por favor, no responda a este correo.
       return true;
     } catch (error) {
       console.error('✗ Error al enviar el correo:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Envía un correo de error cuando el servicio no está disponible
+   * @param {Object} datosError - Datos del error
+   * @returns {Promise<boolean>} - true si se envió correctamente
+   */
+  async enviarCorreoError(datosError) {
+    try {
+      if (!this.transporter) {
+        const inicializado = await this.inicializar();
+        if (!inicializado) {
+          return false;
+        }
+      }
+
+      if (!EMAIL_RECIPIENTS || EMAIL_RECIPIENTS.length === 0) {
+        console.error('✗ No hay destinatarios configurados en EMAIL_RECIPIENTS');
+        return false;
+      }
+
+      const fechaActual = new Date().toLocaleString('es-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      const asunto = '🚨 [ERROR] Tango Tiendas - Servicio No Disponible';
+
+      const htmlError = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #dc3545;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .info-item {
+            margin: 10px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 Error de Conexión - Tango Tiendas</h1>
+    </div>
+    
+    <div class="error">
+        <strong>El servicio no está disponible o no responde</strong>
+        <p>No se pudo establecer conexión con el servicio después de 1 minuto de espera.</p>
+    </div>
+    
+    <div class="info">
+        <div class="info-item">
+            <span class="info-label">Tipo de error:</span> Timeout de conexión
+        </div>
+        <div class="info-item">
+            <span class="info-label">Fecha del error:</span> ${fechaActual}
+        </div>
+        <div class="info-item">
+            <span class="info-label">Mensaje:</span> ${datosError.error || 'No se pudo cargar la página inicial'}
+        </div>
+    </div>
+    
+    <div class="info">
+        <p><strong>Acciones recomendadas:</strong></p>
+        <ul>
+            <li>Verificar que el servicio esté en línea</li>
+            <li>Revisar la conectividad de red</li>
+            <li>Contactar al administrador del sistema</li>
+        </ul>
+    </div>
+    
+    <div class="footer">
+        <p>Este es un correo automático generado por el sistema de monitoreo.</p>
+        <p>Por favor, no responda a este correo.</p>
+    </div>
+</body>
+</html>
+      `.trim();
+
+      const textoError = `
+ERROR DE CONEXIÓN - TANGO TIENDAS
+
+El servicio no está disponible o no responde.
+
+No se pudo establecer conexión con el servicio después de 1 minuto de espera.
+
+Tipo de error: Timeout de conexión
+Fecha del error: ${fechaActual}
+Mensaje: ${datosError.error || 'No se pudo cargar la página inicial'}
+
+Acciones recomendadas:
+- Verificar que el servicio esté en línea
+- Revisar la conectividad de red
+- Contactar al administrador del sistema
+
+---
+Este es un correo automático generado por el sistema de monitoreo.
+Por favor, no responda a este correo.
+      `.trim();
+
+      const mailOptions = {
+        from: SMTP_FROM,
+        to: EMAIL_RECIPIENTS.join(', '),
+        subject: asunto,
+        text: textoError,
+        html: htmlError,
+      };
+
+      console.log(`Enviando correo de error a ${EMAIL_RECIPIENTS.length} destinatario(s)...`);
+      const info = await this.transporter.sendMail(mailOptions);
+      
+      console.log('✓ Correo de error enviado correctamente');
+      console.log(`  ID del mensaje: ${info.messageId}`);
+      console.log(`  Destinatarios: ${EMAIL_RECIPIENTS.join(', ')}`);
+      
+      return true;
+    } catch (error) {
+      console.error('✗ Error al enviar el correo de error:', error.message);
       return false;
     }
   }
