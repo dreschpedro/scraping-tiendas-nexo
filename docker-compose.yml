@@ -8,14 +8,18 @@ services:
     container_name: scraping-tiendas-nexo
     restart: unless-stopped
     environment:
-      # Las variables de entorno se pueden pasar desde .env o docker-compose
-      # Es mejor usar un archivo .env externo montado como volumen
       - NODE_ENV=production
-    env_file:
-      - .env
+      # Variables de entorno - se configuran en Portainer o se cargan desde stack.env
+      - USER=${USER}
+      - PASS=${PASS}
+      - HEADLESS=${HEADLESS:-true}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+      - EMAIL_RECIPIENTS=${EMAIL_RECIPIENTS}
     volumes:
-      # Montar el archivo .env desde el host
-      - ./.env:/app/.env:ro
       # Montar directorio de logs para persistencia
       - ./logs:/app/logs
     # Configurar límites de recursos (opcional)

@@ -28,25 +28,9 @@ git clone https://tu-repositorio.git .
 scp -r . usuario@tu_vps_ip:~/scraping_tiendas_nexo
 ```
 
-### 2. Crear Archivo .env
+### 2. Configurar Variables de Entorno
 
-```bash
-nano .env
-```
-
-Contenido mínimo:
-
-```env
-USER=tu_email@ejemplo.com
-PASS=tu_contraseña
-HEADLESS=true
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=tu_email@gmail.com
-SMTP_PASS=tu_contraseña_app
-SMTP_FROM=tu_email@gmail.com
-EMAIL_RECIPIENTS=destinatario1@ejemplo.com
-```
+**IMPORTANTE**: Cuando despliegas desde un repositorio Git, Portainer no puede acceder a archivos `.env` del servidor. Debes configurar las variables directamente en Portainer.
 
 ### 3. Desplegar en Portainer
 
@@ -56,34 +40,34 @@ EMAIL_RECIPIENTS=destinatario1@ejemplo.com
 
 2. **Ir a "Stacks"** → **"Add stack"**
 
-3. **Configurar**:
-   - **Name**: `scraping-tiendas`
-   - **Build method**: "Repository" o "Upload"
-   - Si usas Upload, copiar el contenido de `docker-compose.yml`
-   - Si usas Repository, poner la ruta: `/home/usuario/scraping_tiendas_nexo`
+3. **Configurar el stack**:
+   - **Name**: `scraping-tiendas-nexo`
+   - **Build method**: Seleccionar **"Repository"**
+   - **Repository URL**: `https://github.com/tu-usuario/scraping_tiendas_nexo.git`
+   - **Repository reference**: `refs/heads/main` (o la rama que uses)
+   - **Compose path**: `docker-compose.yml`
 
-4. **En el editor**, pegar el contenido de `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-
-services:
-  scraping-tiendas:
-    build:
-      context: /home/usuario/scraping_tiendas_nexo
-      dockerfile: Dockerfile
-    container_name: scraping-tiendas-nexo
-    restart: unless-stopped
-    env_file:
-      - /home/usuario/scraping_tiendas_nexo/.env
-    volumes:
-      - /home/usuario/scraping_tiendas_nexo/.env:/app/.env:ro
-      - /home/usuario/scraping_tiendas_nexo/logs:/app/logs
-```
+4. **Configurar Variables de Entorno** (IMPORTANTE):
+   
+   En la sección "Environment variables", agregar cada variable:
+   
+   - `USER` = `tu_email@ejemplo.com`
+   - `PASS` = `tu_contraseña`
+   - `HEADLESS` = `true`
+   - `SMTP_HOST` = `smtp.gmail.com`
+   - `SMTP_PORT` = `587`
+   - `SMTP_USER` = `tu_email@gmail.com`
+   - `SMTP_PASS` = `tu_contraseña_app`
+   - `SMTP_FROM` = `tu_email@gmail.com`
+   - `EMAIL_RECIPIENTS` = `destinatario1@ejemplo.com,destinatario2@ejemplo.com`
+   
+   **O usar "Load variables from .env file"** si tienes un archivo `stack.env` en el repositorio.
 
 5. **Click en "Deploy the stack"**
 
 6. **Verificar** en "Containers" que el contenedor esté corriendo
+
+**Nota**: El `docker-compose.yml` ya está configurado para usar variables de entorno directamente, no necesita archivo `.env` montado.
 
 #### Método 2: Contenedor Manual
 
