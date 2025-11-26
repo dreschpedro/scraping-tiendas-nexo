@@ -1,0 +1,26 @@
+<form
+    action="/Account/LogOn?ReturnUrl=%2fusers%2fissue%3fwa%3dwsignin1.0%26wtrealm%3dhttps%253a%252f%252ftiendas.axoft.com%26wctx%3drm%253d0%2526id%253dpassive%2526ru%253d%25252f%26wct%3d2025-11-26T16%253a37%253a52Z&amp;wa=wsignin1.0&amp;wtrealm=https%3a%2f%2ftiendas.axoft.com&amp;wctx=rm%3d0%26id%3dpassive%26ru%3d%252f&amp;wct=2025-11-26T16%3a37%3a52Z"
+    method="post" novalidate="novalidate">
+    <div class="row">
+        <div class="form-group">
+            <input class="form-control" data-val="true"
+                data-val-length="El correo electrónico no debe superar los 256 caracteres" data-val-length-max="256"
+                data-val-required="Por favor ingrese un correo electrónico" id="UserName" name="UserName"
+                placeholder="Correo electrónico" title="Ingrese un correo electrónico válido" type="email" value="">
+            <span class="field-validation-valid" data-valmsg-for="UserName" data-valmsg-replace="true"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <input class="form-control" data-val="true"
+                data-val-length="The field Contraseña must be a string with a maximum length of 50."
+                data-val-length-max="50" data-val-required="Por favor ingrese su contraseña" id="Password"
+                name="Password" placeholder="Contraseña" type="password" value="">
+            <span class="field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+        </div>
+    </div>
+    <div class="row">
+        <h5 id="errlogon" style="color: red; text-align:center"></h5>
+        <input type="submit" class="btn axnexo-btn-login" value="Iniciar sesión">
+    </div>
+</form>

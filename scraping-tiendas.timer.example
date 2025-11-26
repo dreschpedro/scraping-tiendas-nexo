@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Scraping Tiendas every hour
+Requires=scraping-tiendas.service
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

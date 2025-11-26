@@ -1,0 +1,25 @@
+{
+  "name": "scraping-tiendas-nexo",
+  "version": "1.0.0",
+  "description": "Servicio de scraping para tiendas.axoft.com",
+  "main": "fase1_login.js",
+  "type": "module",
+  "scripts": {
+    "start": "node main.js",
+    "login": "node fase1_login.js",
+    "analisis": "node fase2_analisis.js",
+    "test": "node fase1_login.js"
+  },
+  "keywords": [
+    "scraping",
+    "puppeteer",
+    "automation"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "nodemailer": "^7.0.11",
+    "puppeteer": "^24.31.0"
+  }
+}

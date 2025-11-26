@@ -1,0 +1,16 @@
+[Unit]
+Description=Scraping Tiendas Nexo Service
+After=network.target
+
+[Service]
+Type=oneshot
+User=scraping
+WorkingDirectory=/home/scraping/scraping_tiendas_nexo
+Environment="NODE_ENV=production"
+ExecStart=/usr/bin/node /home/scraping/scraping_tiendas_nexo/main.js
+StandardOutput=append:/home/scraping/scraping_tiendas_nexo/logs/service.log
+StandardError=append:/home/scraping/scraping_tiendas_nexo/logs/service-error.log
+
+[Install]
+WantedBy=multi-user.target
+

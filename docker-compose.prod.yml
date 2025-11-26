@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  scraping-tiendas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scraping-tiendas-nexo
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./logs:/app/logs
+    # Configuración para ejecución periódica con cron dentro del contenedor
+    # O usar un cron externo que ejecute: docker-compose exec scraping-tiendas node main.js
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+

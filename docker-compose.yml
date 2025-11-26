@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  scraping-tiendas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scraping-tiendas-nexo
+    restart: unless-stopped
+    environment:
+      # Las variables de entorno se pueden pasar desde .env o docker-compose
+      # Es mejor usar un archivo .env externo montado como volumen
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      # Montar el archivo .env desde el host
+      - ./.env:/app/.env:ro
+      # Montar directorio de logs para persistencia
+      - ./logs:/app/logs
+    # Configurar límites de recursos (opcional)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    # Healthcheck (opcional)
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
