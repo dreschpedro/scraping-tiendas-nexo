@@ -71,6 +71,13 @@ class BrowserManager {
       throw new Error('El navegador no está inicializado. Llama a init() primero.');
     }
 
+    // Si SIMULATE_TIMEOUT está activado, forzar timeout artificialmente
+    if (process.env.SIMULATE_TIMEOUT === 'true') {
+      console.log('⚠ Simulando timeout - Esperando 6 segundos y luego lanzando error...');
+      await this.wait(6000); // Esperar 6 segundos
+      throw new Error('Timeout de navegación: Simulación de timeout activada - No se pudo cargar la página en el tiempo esperado');
+    }
+    
     const defaultOptions = {
       waitUntil: 'networkidle2',
       timeout: 60000, // 1 minuto máximo para cargar la página

@@ -21,6 +21,14 @@ import EmailPhase from './fase3_email.js';
 
     // Fase 1: Login
     console.log('--- FASE 1: LOGIN ---');
+    
+    // Verificar si está en modo simulación
+    if (process.env.SIMULATE_TIMEOUT === 'true') {
+      console.log('⚠⚠⚠ MODO SIMULACIÓN DE TIMEOUT ACTIVADO ⚠⚠⚠');
+      console.log('  Se simulará un error de timeout para probar el envío de correo');
+      console.log('  Para desactivar, quitar SIMULATE_TIMEOUT=true del .env\n');
+    }
+    
     const loginPhase = new LoginPhase(browserManager);
     
     try {
@@ -33,13 +41,17 @@ import EmailPhase from './fase3_email.js';
       }
     } catch (error) {
       // Si hay error de timeout o conexión, enviar correo de alerta
-      if (error.message.includes('timeout') || 
-          error.message.includes('Navigation timeout') ||
-          error.message.includes('net::ERR') ||
-          error.message.includes('Protocol error') ||
-          error.name === 'TimeoutError') {
-        
+      const esErrorTimeout = error.message.includes('timeout') || 
+                            error.message.includes('Timeout') ||
+                            error.message.includes('Navigation timeout') ||
+                            error.message.includes('net::ERR') ||
+                            error.message.includes('Protocol error') ||
+                            error.name === 'TimeoutError' ||
+                            error.message.includes('Simulación de timeout');
+      
+      if (esErrorTimeout) {
         console.error('✗ Error de conexión/timeout al intentar acceder al servicio');
+        console.error(`  Error: ${error.message}`);
         console.error('  Enviando correo de alerta...');
         
         const EmailPhase = (await import('./fase3_email.js')).default;
@@ -54,9 +66,15 @@ import EmailPhase from './fase3_email.js';
           encontrado: false
         };
         
-        await emailPhase.enviarCorreoError(datosError);
-        await emailPhase.cerrar();
+        const correoEnviado = await emailPhase.enviarCorreoError(datosError);
         
+        if (correoEnviado) {
+          console.log('✓ Correo de error enviado exitosamente');
+        } else {
+          console.log('⚠ No se pudo enviar el correo de error');
+        }
+        
+        await emailPhase.cerrar();
         await browserManager.close();
         process.exit(1);
       } else {

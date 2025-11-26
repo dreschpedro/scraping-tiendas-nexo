@@ -19,6 +19,10 @@ class LoginPhase {
       const page = this.browserManager.getPage();
 
       // Navegar a la URL base (con timeout de 1 minuto)
+      // Si SIMULATE_TIMEOUT=true, se simulará un timeout
+      if (process.env.SIMULATE_TIMEOUT === 'true') {
+        console.log('⚠ MODO SIMULACIÓN ACTIVADO - Se simulará un timeout');
+      }
       console.log('Navegando a la página de login...');
       try {
         const navigated = await this.browserManager.navigate(BASE_URL);
@@ -28,12 +32,14 @@ class LoginPhase {
         }
       } catch (error) {
         // Si es timeout o error de conexión, lanzar el error para que main.js lo capture
+        // NO retornar false, lanzar el error directamente
         if (error.message.includes('timeout') || 
             error.message.includes('Timeout') ||
             error.message.includes('Navigation timeout') ||
             error.message.includes('net::ERR') ||
             error.name === 'TimeoutError') {
-          throw error; // Propagar el error para que main.js lo capture
+          // Propagar el error para que main.js lo capture y envíe correo
+          throw error;
         }
         // Otros errores también se propagan
         throw error;
@@ -130,8 +136,19 @@ class LoginPhase {
       console.log('✓ Login completado');
       return true;
     } catch (error) {
+      // Si es timeout o error de conexión, NO retornar false, lanzar el error
+      if (error.message.includes('timeout') || 
+          error.message.includes('Timeout') ||
+          error.message.includes('Navigation timeout') ||
+          error.message.includes('net::ERR') ||
+          error.name === 'TimeoutError') {
+        console.error('✗ Error de timeout/conexión durante el login:', error.message);
+        // Lanzar el error para que main.js lo capture y envíe correo
+        throw error;
+      }
+      // Otros errores también se propagan
       console.error('✗ Error durante el login:', error.message);
-      return false;
+      throw error;
     }
   }
 }
