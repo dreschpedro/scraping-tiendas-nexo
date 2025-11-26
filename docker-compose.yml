@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: scraping-tiendas-nexo
-    restart: unless-stopped
+    restart: "no"
     environment:
       - NODE_ENV=production
       # Variables de entorno - se configuran en Portainer o se cargan desde stack.env
